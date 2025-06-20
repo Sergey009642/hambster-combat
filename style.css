@@ -6,6 +6,8 @@ body {
   align-items: center;
   height: 100vh;
   margin: 0;
+  touch-action: manipulation; /* prevents double tap zoom */
+  overscroll-behavior: none;
 }
 .auth-box{
   width: 320px;
@@ -62,6 +64,9 @@ img {
   margin: 20px 0;
   cursor: pointer;
   transition: transform 0.1s;
+  touch-action: manipulation;
+  -webkit-user-drag: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 img:active {

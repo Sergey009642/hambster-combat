@@ -39,3 +39,11 @@ function login() {
 function show(msg) {
   document.getElementById("message").textContent = msg;
 }
+let lastTouch = 0;
+document.addEventListener('touchstart', function (e) {
+  const now = new Date().getTime();
+  if (now - lastTouch <= 300) {
+    e.preventDefault();
+  }
+  lastTouch = now;
+}, { passive: false });
