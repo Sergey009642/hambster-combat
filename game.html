@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Hamster Kombat</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="game-box">
+    <h2 id="welcome">Բարի գալուստ</h2>
+    <p>💰 Coins: <span id="coins">0</span></p>
+    <p>⭐ Level: <span id="level">1</span></p>
+    <img src="https://coinspot.io/wp-content/uploads/2024/09/snimok-ekrana-2024-09-15-v-17.03.12.png" onclick="clickHamster()" />
+    <div class="buttons">
+      <button onclick="upgrade()">Upgrade ⚡</button>
+      <button onclick="logout()">Դուրս գալ 🚪</button>
+    </div>
+  </div>
+
+  <script>
+    let username = localStorage.getItem("loggedInUser");
+    if (!username) {
+      alert("Մուտք գործեք՝ խաղը սկսելու համար");
+      window.location.href = "index.html";
+    }
+
+    let user = JSON.parse(localStorage.getItem("user_" + username));
+    let coins = user.coins || 0;
+    let level = user.level || 1;
+    let power = user.power || 1;
+
+    document.getElementById("welcome").textContent += `, ${username}`;
+    document.getElementById("coins").textContent = coins;
+    document.getElementById("level").textContent = level;
+
+    function clickHamster() {
+      coins += power;
+      update();
+    }
+
+    function upgrade() {
+      if (coins >= 10) {
+        coins -= 10;
+        power++;
+        level++;
+        update();
+      } else {
+        alert("Դու չունես բավարար մետաղադրամ ⚠️");
+      }
+    }
+
+    function update() {
+      document.getElementById("coins").textContent = coins;
+      document.getElementById("level").textContent = level;
+      user.coins = coins;
+      user.level = level;
+      user.power = power;
+      localStorage.setItem("user_" + username, JSON.stringify(user));
+    }
+
+    function logout() {
+      localStorage.removeItem("loggedInUser");
+      window.location.href = "index.html";
+    }
+  </script>
+</body>
+</html>
