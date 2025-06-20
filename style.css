@@ -63,10 +63,22 @@ img {
   width: 320px;
   margin: 20px 0;
   cursor: pointer;
+  border-radius: 20px;
   transition: transform 0.1s;
   touch-action: manipulation;
   -webkit-user-drag: none;
   -webkit-tap-highlight-color: transparent;
+}
+.buttons{
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.buttons>button{
+  width: 200px;
+}
+.butto>button{
+  width: 100px;
 }
 
 img:active {
@@ -76,4 +88,9 @@ img:active {
 #message {
   margin-top: 10px;
   color: orange;
+}
+.btn-cont{
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

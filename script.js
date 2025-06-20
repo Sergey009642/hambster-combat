@@ -47,3 +47,5 @@ document.addEventListener('touchstart', function (e) {
   }
   lastTouch = now;
 }, { passive: false });
+
+

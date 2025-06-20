@@ -8,53 +8,97 @@
 <body>
   <div class="game-box">
     <h2 id="welcome">Բարի գալուստ</h2>
+    <p id="energy-bar">⚡ 10/10</p>
     <p>💰 Coins: <span id="coins">0</span></p>
     <p>⭐ Level: <span id="level">1</span></p>
-    <img src="https://coinspot.io/wp-content/uploads/2024/09/snimok-ekrana-2024-09-15-v-17.03.12.png" onclick="clickHamster()" />
-    <div class="buttons">
-      <button onclick="upgrade()">Upgrade ⚡</button>
-      <button onclick="logout()">Դուրս գալ 🚪</button>
+    <img id="hamster-img" src="https://coinspot.io/wp-content/uploads/2024/09/snimok-ekrana-2024-09-15-v-17.03.12.png" onclick="clickHamster()" />
+    <div class="btn-cont">
+      <div class="buttons">
+        <button onclick="upgrade()">Upgrade ⚡</button>
+        <button onclick="logout()">Դուրս գալ 🚪</button>
+      </div>
     </div>
   </div>
 
   <script>
+    const maxEnergy = 60;
+    const replenishInterval = 60 * 1000; // 1 րոպե
+
     let username = localStorage.getItem("loggedInUser");
     if (!username) {
       alert("Մուտք գործեք՝ խաղը սկսելու համար");
       window.location.href = "index.html";
     }
 
-    let user = JSON.parse(localStorage.getItem("user_" + username));
-    let coins = user.coins || 0;
-    let level = user.level || 1;
-    let power = user.power || 1;
+    let user = JSON.parse(localStorage.getItem("user_" + username)) || {
+      coins: 0,
+      level: 1,
+      power: 1
+    };
 
+    let coins = user.coins;
+    let level = user.level;
+    let power = user.power;
+
+    // Էներգիայի ճիշտ ստացում (0 էլ աշխատի)
+    let storedEnergy = localStorage.getItem("energy_" + username);
+    let energy = storedEnergy !== null ? parseInt(storedEnergy) : maxEnergy;
+
+    let storedTime = localStorage.getItem("energy_time_" + username);
+    let lastReplenish = storedTime !== null ? parseInt(storedTime) : Date.now();
+
+    // Բարի գալուստ
     document.getElementById("welcome").textContent += `, ${username}`;
     document.getElementById("coins").textContent = coins;
     document.getElementById("level").textContent = level;
 
     function clickHamster() {
+      if (energy <= 0) {
+        alert("⚡ Էներգիա չկա, սպասիր վերականգնման");
+        return;
+      }
+
+      energy--;
+      localStorage.setItem("energy_" + username, energy);
+      updateEnergyUI();
+
       coins += power;
       update();
     }
 
     function upgrade() {
-      if (coins >= 10) {
-        coins -= 10;
+      let upgradeCost = 0;
+
+      if (level <= 20) {
+        upgradeCost = level * 100;
+      } else if (level <= 50) {
+        upgradeCost = level * 150;
+      } else {
+        upgradeCost = level * 200;
+      }
+
+      if (coins >= upgradeCost) {
+        coins -= upgradeCost;
         power++;
         level++;
         update();
+
+        if (level >= 100) {
+          document.getElementById("hamster-img").src = "https://mignews.com.ua/wp-content/uploads/2024/06/img_2148-1024x810.jpeg";
+        }
       } else {
-        alert("Դու չունես բավարար մետաղադրամ ⚠️");
+        alert(`Պահանջվում է ${upgradeCost} մետաղադրամ՝ հաջորդ մակարդակին անցնելու համար ⚠️`);
       }
     }
 
     function update() {
       document.getElementById("coins").textContent = coins;
       document.getElementById("level").textContent = level;
+
       user.coins = coins;
       user.level = level;
       user.power = power;
+
       localStorage.setItem("user_" + username, JSON.stringify(user));
     }
 
@@ -62,6 +106,35 @@
       localStorage.removeItem("loggedInUser");
       window.location.href = "index.html";
     }
+
+    function updateEnergyUI() {
+      document.getElementById("energy-bar").textContent = `⚡ ${energy}/${maxEnergy}`;
+    }
+
+    function startEnergyTimer() {
+      setInterval(() => {
+        const now = Date.now();
+
+        if (energy < maxEnergy) {
+          const diff = now - lastReplenish;
+          const toAdd = Math.floor(diff / replenishInterval);
+
+          if (toAdd > 0) {
+            energy = Math.min(maxEnergy, energy + toAdd);
+            lastReplenish += toAdd * replenishInterval;
+
+            localStorage.setItem("energy_" + username, energy);
+            localStorage.setItem("energy_time_" + username, lastReplenish);
+
+            updateEnergyUI();
+          }
+        }
+      }, 1000); // ամեն վայրկյանը ստուգի
+    }
+
+    // Սկսել
+    updateEnergyUI();
+    startEnergyTimer();
   </script>
 </body>
 </html>
